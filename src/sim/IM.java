@@ -2,91 +2,81 @@ package sim;
 
 public class IM {
 
-    // add instruction
-    public int add(int rs1, int rs2) {
-        return rs1 + rs2;
+    // Opcode 0x37
+    // LUI instruction
+
+
+    // Opcode 0x17
+    // AUIPC instruction
+
+
+    // Opcode 0x6F
+    // JAL instruction
+
+
+    // Opcode 0x67
+    // JALR instruction
+
+
+    // Opcode 0x63
+    // BEQ instruction
+    public boolean beq(int rs1, int rs2) {
+        return rs1 == rs2;
     }
 
-    // addi instruction
-    public int addi(int rs1, int imm) {
-        return rs1 + imm;
+    // BNE instruction
+    public boolean bne(int rs1, int rs2) {
+        return rs1 != rs2;
     }
 
-    // sub instruction
-    public int sub(int rs1, int rs2) {
-        return rs1 - rs2;
+    // BLT instruction
+    public boolean blt(int rs1, int rs2) {
+        return rs1 < rs2;
     }
 
-    // or instruction
-    public int or(int rs1, int rs2) {
-        return rs1 | rs2;
+    // BGE instruction
+    public boolean bge(int rs1, int rs2) {
+        return rs1 >= rs2;
     }
 
-    // ori instruction
-    public int ori(int rs1, int imm) {
-        return rs1 | imm;
+    // BLTU instruction
+    public boolean bltu(int rs1, int rs2) {
+        return Integer.compareUnsigned(rs1, rs2) < 0;
     }
 
-    // and instruction
-    public int and(int rs1, int rs2) {
-        return rs1 & rs2;
+    // BGEU instruction
+    public boolean bgeu(int rs1, int rs2) {
+        return Integer.compareUnsigned(rs1, rs2) >= 0;
     }
 
-    // andi instruction
+
+    // Opcode 0x03
+    // LB instruction
+
+    // LH instruction
+
+    // LW instruction
+
+    // LBU instruction
+
+    // LHU instruction
+
+
+    // Opcode 0x23
+    // SB instruction
+
+    // SH instruction
+
+    // SW instruction
+
+
+    // Opcode 0x13
+    // ANDI instruction
     public int andi(int rs1, int imm) {
         return rs1 & imm;
     }
 
-    // xor instruction
-    public int xor(int rs1, int rs2) {
-        return rs1 ^ rs2;
-    }
-
-    // xori instruction
-    public int xori(int rs1, int imm) {
-        return rs1 ^ imm;
-    }
-
-    // sll instruction
-    public int sll(int rs1, int rs2) {
-        return rs1 << rs2;
-    }
-
-    // slli instruction
-    public int slli(int rs1, int shamt) {
-        return rs1 << shamt;
-    }
-
-    // srl instruction
-    public int srl(int rs1, int rs2) {
-        return rs1 >>> rs2;
-    }
-
-    // srli instruction
-    public int srli(int rs1, int shamt) {
-        return rs1 >>> shamt;
-    }
-
-    // sra instruction
-    public int sra(int rs1, int rs2) {
-        return rs1 >> rs2;
-    }
-
-    // srai instruction
-    public int srai(int rs1, int shamt) {
-        return rs1 >> shamt;
-    }
-
-    // slt instruction
-    public int slt(int rs1, int rs2) {
-        if(rs1 < rs2) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
-    // slti instruction
+    // SLTI instruction
     public int slti(int rs1, int imm) {
         if(rs1 < imm) {
             return 1;
@@ -95,7 +85,72 @@ public class IM {
         }
     }
 
-    // sltu instruction
+    // SLTIU instruction
+    public int sltiu(int rs1, int imm) {
+        if (Integer.compareUnsigned(rs1, imm) < 0) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    // XORI instruction
+    public int xori(int rs1, int imm) {
+        return rs1 ^ imm;
+    }
+
+    // ORI instruction
+    public int ori(int rs1, int imm) {
+        return rs1 | imm;
+    }
+
+    // ADDI instruction
+    public int addi(int rs1, int imm) {
+        return rs1 + imm;
+    }
+
+    // SLLI instruction
+    public int slli(int rs1, int shamt) {
+        return rs1 << shamt;
+    }
+
+    // SRLI instruction
+    public int srli(int rs1, int shamt) {
+        return rs1 >>> shamt;
+    }
+
+    // SRAI instruction
+    public int srai(int rs1, int shamt) {
+        return rs1 >> shamt;
+    }
+
+    
+    //Opcode 0x33
+    // ADD instruction
+    public int add(int rs1, int rs2) {
+        return rs1 + rs2;
+    }
+
+    // SUB instruction
+    public int sub(int rs1, int rs2) {
+        return rs1 - rs2;
+    }
+
+    // SLL instruction
+    public int sll(int rs1, int rs2) {
+        return rs1 << rs2;
+    }
+
+    // SLT instruction
+    public int slt(int rs1, int rs2) {
+        if(rs1 < rs2) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    // SLTU instruction
     public int sltu(int rs1, int rs2) {
         if(Integer.compareUnsigned(rs1, rs2) < 0) {
             return 1;
@@ -104,13 +159,28 @@ public class IM {
         }
     }
 
-    // bge instruction
-    public boolean bge(int rs1, int rs2) {
-        return rs1 >= rs2;
+    // XOR instruction
+    public int xor(int rs1, int rs2) {
+        return rs1 ^ rs2;
     }
 
-    // beq instruction
-    public boolean beq(int rs1, int rs2) {
-        return rs1 == rs2;
+    // SRL instruction
+    public int srl(int rs1, int rs2) {
+        return rs1 >>> rs2;
+    }
+
+    // SRA instruction
+    public int sra(int rs1, int rs2) {
+        return rs1 >> rs2;
+    }
+
+    // OR instruction
+    public int or(int rs1, int rs2) {
+        return rs1 | rs2;
+    }
+
+    // AND instruction
+    public int and(int rs1, int rs2) {
+        return rs1 & rs2;
     }
 }
