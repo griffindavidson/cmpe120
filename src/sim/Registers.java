@@ -1,3 +1,5 @@
+package sim;
+
 public class Registers {
     int[] registers;
 

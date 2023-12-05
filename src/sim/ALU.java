@@ -1,3 +1,5 @@
+package sim;
+
 public class ALU {
     private int input1; // ReadData1
     private int input2; // ReadData2 or ImmGen
@@ -8,18 +10,18 @@ public class ALU {
         this.input1 = input1;
         this.input2 = input2;
 
-        switch modeNum {
+        switch(modeNum) {
             case 0:
-               mode = AND;
+               mode = Mode.AND;
                 break;
             case 1:
-                mode = OR;
+                mode = Mode.OR;
                 break;
             case 2:
-                mode = XOR;
+                mode = Mode.XOR;
                 break;
             case 3:
-                mode = NOT;
+                mode = Mode.NOT;
                 break;
             default:
                 System.out.println("ERROR: INVALID ALU MODE SELECTION");
@@ -27,22 +29,7 @@ public class ALU {
         }
     }
 
-    switch mode {
-        case AND:
-            and(input1, input2);
-            break;
-        case OR:
-            or(input1, input2);
-            break;
-        case XOR:
-            xor(input1, input2);
-            break;
-        case NOT:
-            not(input1, input2);
-            break;
-    }
-
-
+}
 
 
 enum Mode {
@@ -52,4 +39,3 @@ enum Mode {
     NOT
 }
 
-}
