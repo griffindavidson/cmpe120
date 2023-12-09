@@ -6,6 +6,7 @@ public class CPU {
     private int program[];
 
     private int instr;
+    private String instruction;
     private int opcode;
     private int rd;
     private int f3;
@@ -21,7 +22,7 @@ public class CPU {
     private int exit;
     private boolean jump;
 
-    public CPU() {
+    public CPU(String instruction) {
         exit = -1;
         jump = false;
         RF.registers[2] = memory.length - 5;
