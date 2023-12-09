@@ -2,7 +2,6 @@ package sim;
 
 public class CPU {
     private int programCounter, oldProgramCounter;
-    private int reg[] = new int[32];
     private byte memory[] = new byte[0x0ffffff3];
     private int program[];
 
@@ -25,7 +24,7 @@ public class CPU {
     public CPU() {
         exit = -1;
         jump = false;
-        reg[2] = memory.length - 5;
+        RF.registers[2] = memory.length - 5;
     }
 
     public boolean step() {
@@ -44,42 +43,42 @@ public class CPU {
         immj = (((instr >> 21) & 0x3ff) << 1) + (((instr >> 20) & 0x001) << 11) + (instr & (0x0ff << 12)) + ((instr >> 31) << 20);
         switch (opcode) {
             case 0x37:
-                reg[rd] = immu;
+                RF.registers[rd] = immu;
             case 0x17:
-                reg[rd] = programCounter + immu;
+                RF.registers[rd] = programCounter + immu;
             case 0x6f:
                 if (rd != 0)
-                    reg[rd] = programCounter + 4;
+                	RF.registers[rd] = programCounter + 4;
                 jumpImm(immj);
             case 0x67:
                 if (rd != 0)
-                    reg[rd] = programCounter + 4;
+                	RF.registers[rd] = programCounter + 4;
                 jump = true;
-                programCounter = reg[rs1] + immi;
+                programCounter = RF.registers[rs1] + immi;
             case 0x63:
                 switch (f3) {
                     case 0x0:
-                        if (reg[rs1] == reg[rs2])
+                        if (RF.registers[rs1] == RF.registers[rs2])
                             jumpImm(immb);
                         break;
                     case 0x1:
-                        if (reg[rs1] != reg[rs2])
+                        if (RF.registers[rs1] != RF.registers[rs2])
                             jumpImm(immb);
                         break;
                     case 0x4:
-                        if (reg[rs1] < reg[rs2])
+                        if (RF.registers[rs1] < RF.registers[rs2])
                             jumpImm(immb);
                         break;
                     case 0x5:
-                        if (reg[rs1] >= reg[rs2])
+                        if (RF.registers[rs1] >= RF.registers[rs2])
                             jumpImm(immb);
                         break;
                     case 0x6:
-                        if ((reg[rs1] < reg[rs2]) ^ (reg[rs2] < 0))
+                        if ((RF.registers[rs1] < RF.registers[rs2]) ^ (RF.registers[rs2] < 0))
                             jumpImm(immb);
                         break;
                     case 0x7:
-                        if (!((reg[rs1] < reg[rs2]) ^ (reg[rs2] < 0)))
+                        if (!((RF.registers[rs1] < RF.registers[rs2]) ^ (RF.registers[rs2] < 0)))
                             jumpImm(immb);
                         break;
                     default:
@@ -89,23 +88,23 @@ public class CPU {
             case 0x03:
                 switch (f3) {
                     case 0x0:
-                        reg[rd] = memory[reg[rs1] + immi];
+                        RF.registers[rd] = memory[RF.registers[rs1] + immi];
                         break;
                     case 0x1:
-                        reg[rd] = memory[reg[rs1] + immi] & 0xff;
-                        reg[rd] += (memory[(reg[rs1] + immi) + 1]) << 8;
+                        RF.registers[rd] = memory[RF.registers[rs1] + immi] & 0xff;
+                        RF.registers[rd] += (memory[(RF.registers[rs1] + immi) + 1]) << 8;
                         break;
                     case 0x2:
-                        reg[rd] = 0;
+                        RF.registers[rd] = 0;
                         for (int i =0; i < 4; i++)
-                            reg[rd] += ((memory[(reg[rs1] + immi) + i] & 0xff) << (8 * i));
+                            RF.registers[rd] += ((memory[(RF.registers[rs1] + immi) + i] & 0xff) << (8 * i));
                         break;
                     case 0x4: 
-                        reg[rd] = memory[reg[rs1] + immi] & 0xff;
+                        RF.registers[rd] = memory[RF.registers[rs1] + immi] & 0xff;
                         break;
                     case 0x5: 
-                        reg[rd] = (memory[reg[rs1] + immi] & 0xff);
-                        reg[rd] += (memory[(reg[rs1] + immi) + 1] & 0xff) << 8;
+                        RF.registers[rd] = (memory[RF.registers[rs1] + immi] & 0xff);
+                        RF.registers[rd] += (memory[(RF.registers[rs1] + immi) + 1] & 0xff) << 8;
                         break;
                     default:
                         System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
@@ -114,15 +113,15 @@ public class CPU {
             case 0x23:
                 switch (f3) {
                     case 0x0: 
-                        memory[reg[rs1] + imms] = (byte) (reg[rs2] & 0xff);
+                        memory[RF.registers[rs1] + imms] = (byte) (RF.registers[rs2] & 0xff);
                         break;
                     case 0x1: 
-                        memory[reg[rs1] + imms] = (byte) (reg[rs2] & 0xff);
-                        memory[reg[rs1] + imms + 1] = (byte) ((reg[rs2] >> 8) & 0xff);
+                        memory[RF.registers[rs1] + imms] = (byte) (RF.registers[rs2] & 0xff);
+                        memory[RF.registers[rs1] + imms + 1] = (byte) ((RF.registers[rs2] >> 8) & 0xff);
                         break;
                     case 0x2: 
                         for (int i = 0; i < 4; i++)
-                            memory[reg[rs1] + imms + i] = (byte) ((reg[rs2] >> (8 * i)) & 0xff);
+                            memory[RF.registers[rs1] + imms + i] = (byte) ((RF.registers[rs2] >> (8 * i)) & 0xff);
                         break;
                     default:
                         System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
@@ -131,31 +130,31 @@ public class CPU {
             case 0x13:
                 switch (f3) {
                     case 0x0: 
-                        reg[rd] = reg[rs1] + immi;
+                        RF.registers[rd] = RF.registers[rs1] + immi;
                         break;
                     case 0x1: 
-                        reg[rd] = reg[rs1] << (immi & 0x1f);
+                        RF.registers[rd] = RF.registers[rs1] << (immi & 0x1f);
                         break;
                     case 0x2: 
-                        reg[rd] = reg[rs1] < immi ? 1 : 0;
+                        RF.registers[rd] = RF.registers[rs1] < immi ? 1 : 0;
                         break;
                     case 0x3: 
-                        reg[rd] = ((reg[rs1] < immi) ^ (reg[rs1] < 0) ^ (immi < 0)) ? 1 : 0;
+                        RF.registers[rd] = ((RF.registers[rs1] < immi) ^ (RF.registers[rs1] < 0) ^ (immi < 0)) ? 1 : 0;
                         break;
                     case 0x4: 
-                        reg[rd] = reg[rs1] ^ immi;
+                        RF.registers[rd] = RF.registers[rs1] ^ immi;
                         break;
                     case 0x5:
                         if ((immi >>> 7) == 0x00) 
-                            reg[rd] = reg[rs1] >>> (immi & 0x1f);
+                            RF.registers[rd] = RF.registers[rs1] >>> (immi & 0x1f);
                         else 
-                            reg[rd] = reg[rs1] >> (immi & 0x1f);
+                            RF.registers[rd] = RF.registers[rs1] >> (immi & 0x1f);
                         break;
                     case 0x6: 
-                        reg[rd] = reg[rs1] | immi;
+                        RF.registers[rd] = RF.registers[rs1] | immi;
                         break;
                     case 0x7: 
-                        reg[rd] = reg[rs1] & immi;
+                        RF.registers[rd] = RF.registers[rs1] & immi;
                         break;
                     default:
                         System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
@@ -165,33 +164,33 @@ public class CPU {
                 switch (f3) {
                     case 0x0:
                         if (f7 == 0x00) // add
-                            reg[rd] = reg[rs1] + reg[rs2];
+                            RF.registers[rd] = RF.registers[rs1] + RF.registers[rs2];
                         else // sub
-                            reg[rd] = reg[rs1] - reg[rs2];
+                            RF.registers[rd] = RF.registers[rs1] - RF.registers[rs2];
                         break;
                     case 0x1: // sll
-                        reg[rd] = reg[rs1] << (reg[rs2] & 0x1f);
+                        RF.registers[rd] = RF.registers[rs1] << (RF.registers[rs2] & 0x1f);
                         break;
                     case 0x2: // slt
-                        reg[rd] = reg[rs1] < reg[rs2] ? 1 : 0;
+                        RF.registers[rd] = RF.registers[rs1] < RF.registers[rs2] ? 1 : 0;
                         break;
                     case 0x3: // sltu
-                        reg[rd] = ((reg[rs1] < reg[rs2]) ^ (reg[rs1] < 0) ^ (reg[rs2] < 0)) ? 1 : 0;
+                        RF.registers[rd] = ((RF.registers[rs1] < RF.registers[rs2]) ^ (RF.registers[rs1] < 0) ^ (RF.registers[rs2] < 0)) ? 1 : 0;
                         break;
                     case 0x4:// xor
-                        reg[rd] = reg[rs1] ^ reg[rs2];
+                        RF.registers[rd] = RF.registers[rs1] ^ RF.registers[rs2];
                         break;
                     case 0x5:
                         if (f7 == 0x00) // srl
-                            reg[rd] = reg[rs1] >>> (reg[rs2] & 0x1f);
+                            RF.registers[rd] = RF.registers[rs1] >>> (RF.registers[rs2] & 0x1f);
                         else // sra
-                            reg[rd] = reg[rs1] >> (reg[rs2] & 0x1f);
+                            RF.registers[rd] = RF.registers[rs1] >> (RF.registers[rs2] & 0x1f);
                         break;
                     case 0x6: // or
-                        reg[rd] = reg[rs1] | reg[rs2];
+                        RF.registers[rd] = RF.registers[rs1] | RF.registers[rs2];
                         break;
                     case 0x7: // and
-                        reg[rd] = reg[rs1] & reg[rs2];
+                        RF.registers[rd] = RF.registers[rs1] & RF.registers[rs2];
                     default:
                         System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
                         break;
@@ -219,7 +218,7 @@ public class CPU {
     }
 
     public int[] getReg() {
-        return reg;
+        return RF.registers;
     }
 
     public int getExitCode() {

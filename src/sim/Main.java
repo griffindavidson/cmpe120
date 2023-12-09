@@ -10,8 +10,8 @@ public class Main
     	
     	FileReader reader = null;
     	BufferedReader buffer = null;
-    	ArrayList<String> instructionMemory = new ArrayList<>();
-    	String line = null;
+    	ArrayList<String> instructions = new ArrayList<>();
+    	String instruction = null;
     	
     	try {
 			reader = new FileReader("addi_nohazard.dat");
@@ -24,14 +24,25 @@ public class Main
     	buffer = new BufferedReader(reader);
     	
     	try {
-			while ((line = buffer.readLine()) != null) {
-				System.out.println(line);
-				instructionMemory.add(line);			}
+			while ((instruction = buffer.readLine()) != null)
+			{
+				for (int i = 0; i < 3; i++)
+				{
+					instruction += buffer.readLine();
+				}
+				
+				System.out.println(instruction);
+				
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.exit(1);
+		} catch (NumberFormatException e) {
+			System.out.println("Instruction parse failure");
+			e.printStackTrace();
 		}
+    	
+    	
     	
     
         
