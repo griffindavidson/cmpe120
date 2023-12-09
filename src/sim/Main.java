@@ -7,5 +7,8 @@ public class Main
     	Reader test = new Reader();
     	
     	test.readAddiNoHazard();
+    	test.readAddiHazards();
+    	test.readIType();
+    	test.readRType();
     }
 }

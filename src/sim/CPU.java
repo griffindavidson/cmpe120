@@ -26,6 +26,7 @@ public class CPU {
         exit = -1;
         jump = false;
         RF.registers[2] = memory.length - 5;
+        this.instruction = instruction;
     }
 
     public boolean step() {
@@ -43,42 +44,42 @@ public class CPU {
         immu = instr & (0xfffff << 12);
         immj = (((instr >> 21) & 0x3ff) << 1) + (((instr >> 20) & 0x001) << 11) + (instr & (0x0ff << 12)) + ((instr >> 31) << 20);
         switch (opcode) {
-            case 0x37:
+            case 0x37: // 0110111 - U-TYPE LOAD UPPER IMMIEDIATE
                 RF.registers[rd] = immu;
-            case 0x17:
+            case 0x17: // 0010111 - U-TYPE ADD UPPER IMM TO PC
                 RF.registers[rd] = programCounter + immu;
-            case 0x6f:
+            case 0x6f: // 1101111 - JUMP AND LINK
                 if (rd != 0)
                 	RF.registers[rd] = programCounter + 4;
                 jumpImm(immj);
-            case 0x67:
+            case 0x67: // 1100111 - JUMP AND LINK REGISTER
                 if (rd != 0)
                 	RF.registers[rd] = programCounter + 4;
                 jump = true;
                 programCounter = RF.registers[rs1] + immi;
-            case 0x63:
+            case 0x63: // 1100011 B-TYPE
                 switch (f3) {
-                    case 0x0:
+                    case 0x0: // 000 BRANCH IF EQUAL
                         if (RF.registers[rs1] == RF.registers[rs2])
                             jumpImm(immb);
                         break;
-                    case 0x1:
+                    case 0x1: // 001 BRANCH IF NOT EQUAL
                         if (RF.registers[rs1] != RF.registers[rs2])
                             jumpImm(immb);
                         break;
-                    case 0x4:
+                    case 0x4: // 100 BRANCH LESS THAN
                         if (RF.registers[rs1] < RF.registers[rs2])
                             jumpImm(immb);
                         break;
-                    case 0x5:
+                    case 0x5: // 101 BRANCH GREATER THAN
                         if (RF.registers[rs1] >= RF.registers[rs2])
                             jumpImm(immb);
                         break;
-                    case 0x6:
+                    case 0x6: // 110 
                         if ((RF.registers[rs1] < RF.registers[rs2]) ^ (RF.registers[rs2] < 0))
                             jumpImm(immb);
                         break;
-                    case 0x7:
+                    case 0x7: // 111
                         if (!((RF.registers[rs1] < RF.registers[rs2]) ^ (RF.registers[rs2] < 0)))
                             jumpImm(immb);
                         break;
@@ -86,24 +87,24 @@ public class CPU {
                         System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
                         break;
                 }
-            case 0x03:
+            case 0x03: // 0000011 I-TYPE STORE
                 switch (f3) {
-                    case 0x0:
+                    case 0x0: // 000 LOAD BYTE
                         RF.registers[rd] = memory[RF.registers[rs1] + immi];
                         break;
-                    case 0x1:
+                    case 0x1: // 001 LOAD HALF
                         RF.registers[rd] = memory[RF.registers[rs1] + immi] & 0xff;
                         RF.registers[rd] += (memory[(RF.registers[rs1] + immi) + 1]) << 8;
                         break;
-                    case 0x2:
+                    case 0x2: // 010 LOAD WORD
                         RF.registers[rd] = 0;
                         for (int i =0; i < 4; i++)
                             RF.registers[rd] += ((memory[(RF.registers[rs1] + immi) + i] & 0xff) << (8 * i));
                         break;
-                    case 0x4: 
+                    case 0x4: // 100 LOAD BYTE (U)
                         RF.registers[rd] = memory[RF.registers[rs1] + immi] & 0xff;
                         break;
-                    case 0x5: 
+                    case 0x5: // 101 LOAD HALF (U)
                         RF.registers[rd] = (memory[RF.registers[rs1] + immi] & 0xff);
                         RF.registers[rd] += (memory[(RF.registers[rs1] + immi) + 1] & 0xff) << 8;
                         break;
@@ -111,16 +112,16 @@ public class CPU {
                         System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
                         break;
                 }
-            case 0x23:
+            case 0x23: // 0100011 - I-TYPE LOAD
                 switch (f3) {
-                    case 0x0: 
+                    case 0x0: // 000 ADD IMMIDATE
                         memory[RF.registers[rs1] + imms] = (byte) (RF.registers[rs2] & 0xff);
                         break;
-                    case 0x1: 
+                    case 0x1: // 001 SHIFT LEFT LOGICAL IMM
                         memory[RF.registers[rs1] + imms] = (byte) (RF.registers[rs2] & 0xff);
                         memory[RF.registers[rs1] + imms + 1] = (byte) ((RF.registers[rs2] >> 8) & 0xff);
                         break;
-                    case 0x2: 
+                    case 0x2: // 010 SET LESS THAN IMM
                         for (int i = 0; i < 4; i++)
                             memory[RF.registers[rs1] + imms + i] = (byte) ((RF.registers[rs2] >> (8 * i)) & 0xff);
                         break;
@@ -128,40 +129,40 @@ public class CPU {
                         System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
                         break;
                 }
-            case 0x13:
+            case 0x13: // 0010011 - I-TYPE
                 switch (f3) {
-                    case 0x0: 
+                    case 0x0: // 000
                         RF.registers[rd] = RF.registers[rs1] + immi;
                         break;
-                    case 0x1: 
+                    case 0x1: // 001
                         RF.registers[rd] = RF.registers[rs1] << (immi & 0x1f);
                         break;
-                    case 0x2: 
+                    case 0x2: // 010
                         RF.registers[rd] = RF.registers[rs1] < immi ? 1 : 0;
                         break;
-                    case 0x3: 
+                    case 0x3: // 011
                         RF.registers[rd] = ((RF.registers[rs1] < immi) ^ (RF.registers[rs1] < 0) ^ (immi < 0)) ? 1 : 0;
                         break;
-                    case 0x4: 
+                    case 0x4: // 100
                         RF.registers[rd] = RF.registers[rs1] ^ immi;
                         break;
-                    case 0x5:
+                    case 0x5: // 101
                         if ((immi >>> 7) == 0x00) 
                             RF.registers[rd] = RF.registers[rs1] >>> (immi & 0x1f);
                         else 
                             RF.registers[rd] = RF.registers[rs1] >> (immi & 0x1f);
                         break;
-                    case 0x6: 
+                    case 0x6: // 110
                         RF.registers[rd] = RF.registers[rs1] | immi;
                         break;
-                    case 0x7: 
+                    case 0x7: // 111
                         RF.registers[rd] = RF.registers[rs1] & immi;
                         break;
                     default:
                         System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
                         break;
                 }
-            case 0x33:
+            case 0x33: // 0110011 - R-TYPE
                 switch (f3) {
                     case 0x0:
                         if (f7 == 0x00) // add
