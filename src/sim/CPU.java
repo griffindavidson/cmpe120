@@ -46,17 +46,21 @@ public class CPU {
         switch (opcode) {
             case 0x37: // 0110111 - U-TYPE LOAD UPPER IMMEDIATE (LUI)
                 RF.registers[rd] = immu;
+                break;
             case 0x17: // 0010111 - U-TYPE ADD UPPER IMMEDIATE TO PC (AUIPC)
                 RF.registers[rd] = programCounter + immu;
+                break;
             case 0x6f: // 1101111 - JUMP AND LINK (JAL)
                 if (rd != 0)
                 	RF.registers[rd] = programCounter + 4;
                 jumpImm(immj);
+                break;
             case 0x67: // 1100111 - JUMP AND LINK REGISTER (JALR)
                 if (rd != 0)
                 	RF.registers[rd] = programCounter + 4;
                 jump = true;
                 programCounter = RF.registers[rs1] + immi;
+                break;
             case 0x63: // 1100011 B-TYPE
                 switch (f3) {
                     case 0x0: // 000 BRANCH IF EQUAL (BEQ)
