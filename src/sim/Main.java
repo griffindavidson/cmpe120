@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main 
@@ -16,7 +17,7 @@ public class Main
 	private static void runProgram(Scanner consoleReader) {
 
 		while (true) {
-			int[] programLines = getTheProgramFromAFile(consoleReader);
+			List<String> programLines = getTheProgramFromAFile(consoleReader);
 			CPU cpu = new CPU();
 			cpu.loadProgram(programLines);
 
@@ -49,22 +50,24 @@ public class Main
 		}
 	}
 
-	private static int[] getTheProgramFromAFile(Scanner consoleReader) {
-	    byte[] programFile = getProgramFile(consoleReader);
-	    int[] programLines = new int[programFile.length / 4];
+	private static List<String> getTheProgramFromAFile(Scanner consoleReader) {
+	    List<String> programFile = getProgramFile(consoleReader);
+	    List<String> programLines = new ArrayList<>();
 
-	    for (int i = 0; i < programFile.length; i += 4) {
-	        programLines[i / 4] = 0;
+	    for (int i = 0; i < programFile.size()- 3; i += 4) {
+	        int instructionValue = 0;
 	        for (int x = 0; x < 4; x++) {
-	            programLines[i / 4] += (programFile[i + x] & 0xff) << (8 * (3 - x));
+	            int byteValue = Integer.parseInt(programFile.get(i + x), 2); // Parse binary string to integer
+	            instructionValue += (byteValue & 0xff) << (8 * (3 - x));
 	        }
+	        programLines.add(Integer.toBinaryString(instructionValue));
 	    }
 
 	    return programLines;
 	}
 
 
-	private static byte[] getProgramFile(Scanner consoleReader) {
+	private static List<String> getProgramFile(Scanner consoleReader) {
 	    System.out.println("Which program do you want to load? Type in the wanted number");
 	    File folder = new File("test");
 	    File[] listOfFiles = folder.listFiles();
@@ -74,18 +77,17 @@ public class Main
 	        System.out.print(i++ + ": " + f.getName() + "; ");
 
 	    System.out.println();
+	    
+	    Reader test = new Reader();
+	    
 	    while (true) {
-	        try {
-	            int x = getScannerInt(consoleReader);
-	            if (x < listOfFiles.length)
-	                return Files.readAllBytes(listOfFiles[x].toPath());
-	            else
-	                System.out.println("Please enter a valid program number!");
-	        } catch (FileNotFoundException e) {
-	            System.out.println("The file couldn't be found");
-	        } catch (IOException e) {
-	            // Handle IOException
-	        }
+            int x = getScannerInt(consoleReader);
+            if (x < listOfFiles.length) {
+            	test.readFile(listOfFiles[x].getName());
+                return test.getInstructions();
+            }
+            else
+                System.out.println("Please enter a valid program number!");
 	    }
 	}
 

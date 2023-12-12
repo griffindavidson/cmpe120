@@ -1,5 +1,7 @@
 package sim;
 
+import java.util.List;
+
 public class CPU {
     private int programCounter, oldProgramCounter;
     private byte memory[] = new byte[0x0ffffff3];
@@ -217,8 +219,36 @@ public class CPU {
         System.out.println("Opcode: " + String.format("0x%01X", opcode));
     }
 
-    public void loadProgram(int[] program) {
-        this.program = program;
+    public void loadProgram(List<String> programLines) {
+        this.program = new int[programLines.size()];
+        for (int i = 0; i < programLines.size(); i++) {
+            this.program[i] = parseInstruction(programLines.get(i));
+        }
+    }
+    
+    private int parseInstruction(String line) {
+        // Ensure the line has exactly 32 characters
+        if (line.length() != 32) {
+            throw new IllegalArgumentException("Invalid instruction format: " + line);
+        }
+
+        int instruction = 0;
+
+        // Convert each character of the line to the corresponding bit in the instruction
+        for (int i = 0; i < 32; i++) {
+            char bitChar = line.charAt(i);
+            int bitValue = Character.getNumericValue(bitChar);
+
+            // Ensure the character is a valid binary digit
+            if (bitValue != 0 && bitValue != 1) {
+                throw new IllegalArgumentException("Invalid binary digit in instruction: " + bitChar);
+            }
+
+            // Set the corresponding bit in the instruction
+            instruction = (instruction << 1) | bitValue;
+        }
+
+        return instruction;
     }
 
     public int[] getReg() {
