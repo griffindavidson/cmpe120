@@ -3,6 +3,7 @@ package sim;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,17 +55,18 @@ public class Main
 	    List<String> programFile = getProgramFile(consoleReader);
 	    List<String> programLines = new ArrayList<>();
 
-	    for (int i = 0; i < programFile.size()- 3; i += 4) {
+	    for (int i = 0; i < programFile.size() - 3; i += 4) {
 	        int instructionValue = 0;
 	        for (int x = 0; x < 4; x++) {
-	            int byteValue = Integer.parseInt(programFile.get(i + x), 2); // Parse binary string to integer
-	            instructionValue += (byteValue & 0xff) << (8 * (3 - x));
+	            BigInteger byteValue = new BigInteger(programFile.get(i + x), 2);
+	            instructionValue += byteValue.intValue() << (8 * (3 - x));
 	        }
-	        programLines.add(Integer.toBinaryString(instructionValue));
+	        programLines.add(String.format("%32s", Integer.toBinaryString(instructionValue)).replace(' ', '0'));
 	    }
 
 	    return programLines;
 	}
+
 
 
 	private static List<String> getProgramFile(Scanner consoleReader) {

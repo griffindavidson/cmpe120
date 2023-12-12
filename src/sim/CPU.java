@@ -228,6 +228,7 @@ public class CPU {
     
     private int parseInstruction(String line) {
         // Ensure the line has exactly 32 characters
+    	int length = line.length();
         if (line.length() != 32) {
             throw new IllegalArgumentException("Invalid instruction format: " + line);
         }
@@ -241,6 +242,10 @@ public class CPU {
 
             // Ensure the character is a valid binary digit
             if (bitValue != 0 && bitValue != 1) {
+                // Print the problematic instruction line for debugging
+                System.out.println("Invalid binary digit in instruction: " + bitChar);
+                System.out.println("Problematic instruction line: " + line);
+                
                 throw new IllegalArgumentException("Invalid binary digit in instruction: " + bitChar);
             }
 
@@ -250,6 +255,7 @@ public class CPU {
 
         return instruction;
     }
+
 
     public int[] getReg() {
         return RF.registers;
