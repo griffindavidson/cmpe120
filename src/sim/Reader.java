@@ -12,7 +12,7 @@ public class Reader {
 	public void readFile(String fileName) {
 		FileReader reader = null;
 		BufferedReader buffer = null;
-		String instruction = null;
+		String instruction = "";
 
 		try {
 			reader = new FileReader(fileName);
