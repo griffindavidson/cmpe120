@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Main 
-{
-	static boolean debug;
+public class Main {
 
 	private static void runProgram(Scanner consoleReader) {
 
@@ -25,8 +23,6 @@ public class Main
 			boolean nextStep = true;
 			while (nextStep) {
 				nextStep = cpu.step();
-				if (debug)
-					printRG(cpu); // For testing purpose
 			}
 
 			System.out.println("The content of the registers was:\n");
@@ -34,9 +30,6 @@ public class Main
 			for (int i = 0; i < reg.length; i++)
 				System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
 			System.out.println();
-
-			if (debug)
-				System.out.println("Exit code was: " + cpu.getExitCode());
 
 			System.out.println("Do you want to save the registers to a file? (Y/n):");
 			if (!getScannerString(consoleReader).toLowerCase().equals("n")) {
@@ -130,11 +123,10 @@ public class Main
     	boolean breakpoint = false;
         String[] breakpoints = new String[5];
         int breakpointCount = 0;
-		debug = false;
 
 		System.out.println("Welcome to a RISC-V simulator \n" + "Made by Griffin, Lac, Viet, Karan, and Ali");
 		while (true) {
-			System.out.print("1: Run a program\n" + "2: Debugging\n" + "3: Exit \n");
+			System.out.println("1: Run a program\n" + "2: Exit");
 //			System.out.println("Select an option:");
 //            System.out.println("r - Run a program");
 //            System.out.println("2 - Run the next instruction and then stop and wait for the next command.");
@@ -147,8 +139,6 @@ public class Main
 			int number = getScannerInt(consoleReader);
 			if (number == 1)
 				runProgram(consoleReader);
-			else if (number == 2)
-				debug = !debug;
 			else
 				break;
 		}
