@@ -65,6 +65,7 @@ public class Main {
 
 				// Stop timer
 				long endTime = System.currentTimeMillis();
+				System.out.println("Final counter: " + cpu.getProgramCounter());
 				System.out.println("Execution time: " + (endTime - startTime) + " milliseconds");
 				break;
 			}
