@@ -12,3 +12,7 @@ A RISC-V Simulator designed to read .dat files of binary and perform the associa
 # Command for installation
 git clone https://github.com/griffindavidson/cmpe120.git
 ```
+
+## Contributors
+
+Lac-Phong Nguyen, Viet Nguyen, Griffin Davidson, Ali Altimimi, Balkarandeep Singh
