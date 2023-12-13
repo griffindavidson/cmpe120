@@ -42,8 +42,14 @@ public class Main {
 		List<String> programLines = getProgramFile(consoleReader);
 		CPU cpu = new CPU();
 		cpu.loadProgram(programLines);
-		outerloop: while (true) {
+		while (true) {
+			System.out.println("\nContinuing from PC: " + cpu.getProgramCounter());
 			if(!cpu.step()) {
+				System.out.println("Final content of registers:\n");
+				int[] reg = cpu.getReg();
+				for (int i = 0; i < reg.length; i++)
+				System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
+				System.out.println("");
 				printToFile(cpu);
 				break;
 			}
@@ -51,7 +57,7 @@ public class Main {
 			System.out.println("The content of the registers are currently:\n");
 			int[] reg = cpu.getReg();
 			for (int i = 0; i < reg.length; i++)
-				System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
+			System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
 			System.out.println();
 			System.out.println("s - Run the next instruction and then stop and wait for the next command.");
             System.out.println("Enter a register (from x0 - x31) - Return the contents of the register from the register file (x0 must always stay 0).");
@@ -59,13 +65,12 @@ public class Main {
             System.out.println("pc - Return the value of the PC.");
             System.out.println("insn - Print the assembly of the instruction that will be executed next.");
             System.out.println("b [pc] - Put a breakpoint at a particular/specified [pc].");
-            System.out.println("r [pc] - Remove a breakpoint at a particular/specified [pc].");
             System.out.println("c - Continue execution until it hits the next breakpoint pc or exits.");
-			innerloop: while (true) {
+			while (true) {
 	            String input = getScannerString(consoleReader);
 	            int inputLen = input.length();
 	            if (input.toLowerCase().equals("s"))
-					break innerloop;
+					break;
 	            else if (input.toLowerCase().startsWith("x") && (input.length() < 4)) {
 	            	System.out.println("x" + String.format("%02d", Integer.parseInt(input.substring(1))) + ": " + String.format("0x%08X", reg[Integer.parseInt(input.substring(1))]));
 					
@@ -85,10 +90,10 @@ public class Main {
 				    System.out.println("Breakpoint removed at " + breakpointAddress);
 				} else if (input.toLowerCase().equals("c")) {
 					runThrough(cpu);
-					break outerloop;
+					break;
 				}
 				else
-					break innerloop;
+					break;
 			}
 		}
 	}
@@ -98,14 +103,7 @@ public class Main {
 		while (nextStep) {
 			nextStep = cpu.step();
 		}
-
-		System.out.println("The content of the registers was:\n");
-		int[] reg = cpu.getReg();
-		for (int i = 0; i < reg.length; i++)
-			System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
-		System.out.println();
-		System.out.println("Final counter: " + cpu.getProgramCounter());
-		printToFile(cpu);
+		System.out.println("Current counter: " + cpu.getProgramCounter());
 	}
 
 

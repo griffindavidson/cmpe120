@@ -36,7 +36,8 @@ public class CPU {
     
     public boolean breakpoint() {
         for (String bp : breakpoints) {
-            if (bp != null && bp.equals(String.format("0x%08X", programCounter))) {
+            if (bp != null && (Integer.parseInt(bp) == programCounter)) {
+            	removeBreakpoint(bp);
                 return true; // Break if the current program counter matches a breakpoint
             }
         }
@@ -48,7 +49,6 @@ public class CPU {
         for (int i = 0; i < breakpoints.length; i++) {
             if (breakpoints[i] == null) {
                 breakpoints[i] = pc;
-                System.out.println("Breakpoint set at " + pc);
                 return;
             }
         }
@@ -60,7 +60,6 @@ public class CPU {
         for (int i = 0; i < breakpoints.length; i++) {
             if (breakpoints[i] != null && breakpoints[i].equals(pc)) {
                 breakpoints[i] = null;
-                System.out.println("Breakpoint removed at " + pc);
                 return;
             }
         }
@@ -68,8 +67,11 @@ public class CPU {
     }
 
     public boolean step() {
+    	if (exit != -1) {
+    		return false;
+    	}
     	if (breakpoint()) {
-            System.out.println("Breakpoint reached at " + String.format("0x%08X", programCounter));
+            System.out.println("Breakpoint reached at PC: " + programCounter);
             return false;
         }
     	
@@ -297,6 +299,7 @@ public class CPU {
             programCounter += 4;
         } else jump = false;
         if (programCounter / 4 >= program.length || exit != -1) {
+        	exit = 0;
             return false;
         } else return true;
     }
