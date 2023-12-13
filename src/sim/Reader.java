@@ -37,28 +37,22 @@ public class Reader {
 	        e.printStackTrace();
 	    }
 
-	    // Process the lines in reverse order
-	    for (int i = lines.size() - 1; i >= 0; i--) {
-	        String instruction = lines.get(i);
-	        for (int j = 0; j < 3; j++) {
-	            if (i - 1 >= 0) {
-	                instruction = instruction + lines.get(--i);
-	            } else {
-	                break;
-	            }
-	        }
+		// Process the lines in order
+		for(int i = 0; i < lines.size(); i+= 4) {
+			String instruction = lines.get(i);
+			for (int j = 0; j < 3; j++) {
+				instruction = lines.get(i + j + 1) + instruction;
+			}
 
-	        // Add the reversed instruction to the list
-	        instructions.add(instruction);
-
-	        if (instruction.length() > 25) {
-	            System.out.println(instruction);
-	            String opcode = instruction.substring(25);
-	            System.out.println("Opcode: " + opcode);
-	        }
-	    }
-	    
-	    Collections.reverse(instructions);
+			// Add instruction to the list
+			instructions.add(instruction);
+			
+			if (instruction.length() > 25) {
+				System.out.println(instruction);
+				String opcode = instruction.substring(25);
+				System.out.println("Opcode: " + opcode);
+			}
+		}
 	}
 
 
