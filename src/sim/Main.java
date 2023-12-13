@@ -1,9 +1,7 @@
 package sim;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,7 +14,7 @@ public class Main {
 	private static void runProgram(Scanner consoleReader) {
 
 		while (true) {
-			List<String> programLines = getTheProgramFromAFile(consoleReader);
+			List<String> programLines = getProgramFile(consoleReader);
 			CPU cpu = new CPU();
 			cpu.loadProgram(programLines);
 
@@ -31,25 +29,68 @@ public class Main {
 				System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
 			System.out.println();
 
-			System.out.println("Do you want to save the registers to a file? (Y/n):");
-			if (!getScannerString(consoleReader).toLowerCase().equals("n")) {
-				System.out.println("Write name of the output file, it automatic adds .res: ");
-				String nameOfOutputFile = getScannerString(consoleReader);
-				printRegistersToFile(cpu, nameOfOutputFile);
-			}
-
 			System.out.println("Do you want to run another program? (Y/n):");
 			if (getScannerString(consoleReader).toLowerCase().equals("n"))
 				break;
 		}
 	}
-
-	private static List<String> getTheProgramFromAFile(Scanner consoleReader) {
-	    List<String> programFile = getProgramFile(consoleReader);
-
-	    return programFile;
+	
+	private static void runStep(Scanner consoleReader) {
+		Scanner temp = consoleReader;
+		List<String> programLines = getProgramFile(consoleReader);
+		CPU cpu = new CPU();
+		cpu.loadProgram(programLines);
+		outerloop: while (true) {
+			if(!cpu.step()) {
+				break;
+			}
+			
+			System.out.println("The content of the registers are currently:\n");
+			int[] reg = cpu.getReg();
+			for (int i = 0; i < reg.length; i++)
+				System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
+			System.out.println();
+			System.out.println("s - Run the next instruction and then stop and wait for the next command.");
+            System.out.println("Enter a register (from x0 - x31) - Return the contents of the register from the register file (x0 must always stay 0).");
+            System.out.println("Enter address (e.g. 0x12345678) - Return the contents from the address 0x12345678 in the data memory.");
+            System.out.println("pc - Return the value of the PC.");
+            System.out.println("insn - Print the assembly of the instruction that will be executed next.");
+            System.out.println("b [pc] - Put a breakpoint at a particular/specified [pc].");
+            System.out.println("c - Continue execution until it hits the next breakpoint pc or exits.");
+			innerloop: while (true) {
+	            String input = getScannerString(consoleReader);
+	            int inputLen = input.length();
+	            if (input.toLowerCase().equals("s"))
+					break innerloop;
+	            else if (input.toLowerCase().startsWith("x") && (input.length() < 4)) {
+	            	System.out.println("x" + String.format("%02d", Integer.parseInt(input.substring(1))) + ": " + String.format("0x%08X", reg[Integer.parseInt(input.substring(1))]));
+					
+				} else if (input.toLowerCase().equals("pc")) {
+					System.out.println(cpu.getProgramCounter());
+				} else if (input.toLowerCase().equals("insn")) {
+					System.out.println(cpu.getAssembly());
+				} else if (input.toLowerCase().equals("c")) {
+					runThrough(cpu);
+					break outerloop;
+				}
+				else
+					break innerloop;
+			}
+		}
 	}
+	
+	private static void runThrough(CPU cpu) {
+		boolean nextStep = true;
+		while (nextStep) {
+			nextStep = cpu.step();
+		}
 
+		System.out.println("The content of the registers was:\n");
+		int[] reg = cpu.getReg();
+		for (int i = 0; i < reg.length; i++)
+			System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
+		System.out.println();
+	}
 
 
 	private static List<String> getProgramFile(Scanner consoleReader) {
@@ -74,15 +115,6 @@ public class Main {
             else
                 System.out.println("Please enter a valid program number!");
 	    }
-	}
-
-
-	private static void printRG(CPU cpu1) {
-		System.out.print("After PC: " + cpu1.getOldProgramCounter()/4 + " ");
-		for (int i = 0; i < cpu1.getReg().length; ++i) {
-			System.out.print(String.format("0x%08X", cpu1.getReg()[i]) + " ");
-		}
-		System.out.println();
 	}
 
 	private static int getScannerInt(Scanner consoleReader) {
@@ -117,6 +149,7 @@ public class Main {
 			System.out.println("File was not saved");
 		}
 	}
+	
     public static void main(String[] args) 
     {
     	Scanner consoleReader = new Scanner(System.in);
@@ -126,24 +159,20 @@ public class Main {
 
 		System.out.println("Welcome to a RISC-V simulator \n" + "Made by Griffin, Lac, Viet, Karan, and Ali");
 		while (true) {
-			System.out.println("1: Run a program\n" + "2: Exit");
-//			System.out.println("Select an option:");
-//            System.out.println("r - Run a program");
-//            System.out.println("2 - Run the next instruction and then stop and wait for the next command.");
-//            System.out.println("3 - Return the contents of the register from the register file (x0 must always stay 0).");
-//            System.out.println("4 0x12345678 - Return the contents from the address 0x12345678 in the data memory.");
-//            System.out.println("5 - Return the value of the PC.");
-//            System.out.println("6 insn - Print the assembly of the instruction that will be executed next.");
-//            System.out.println("7 [pc] - Put a breakpoint at a particular/specified [pc].");
-//            System.out.println("8 - Continue execution until it hits the next breakpoint pc or exits.");
-			int number = getScannerInt(consoleReader);
-			if (number == 1)
+			System.out.println("Select an option:");
+            System.out.println("r - Run a program");
+            System.out.println("s - Run the next instruction and then stop and wait for the next command.");
+            System.out.println("other - Exit program");
+			String input = getScannerString(consoleReader);
+			if (input.equals("r"))
 				runProgram(consoleReader);
+			else if (input.toLowerCase().equals("s"))
+				runStep(consoleReader);
 			else
 				break;
 		}
 		System.out.println("Thank you for using the simulator");
-		
+		System.exit(0);
 		
     }
 }
