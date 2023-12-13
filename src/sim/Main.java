@@ -73,7 +73,7 @@ public class Main
 	    System.out.println("Which program do you want to load? Type in the wanted number");
 	    File folder = new File("test");
 	    File[] listOfFiles = folder.listFiles();
-
+		
 	    int i = 0;
 	    for (File f : listOfFiles)
 	        System.out.print(i++ + ": " + f.getName() + "; ");
@@ -85,7 +85,7 @@ public class Main
 	    while (true) {
             int x = getScannerInt(consoleReader);
             if (x < listOfFiles.length) {
-            	test.readFile(listOfFiles[x].getName());
+            	test.readFile("test" + File.separator + listOfFiles[x].getName());
                 return test.getInstructions();
             }
             else
