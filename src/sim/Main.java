@@ -59,6 +59,7 @@ public class Main {
             System.out.println("pc - Return the value of the PC.");
             System.out.println("insn - Print the assembly of the instruction that will be executed next.");
             System.out.println("b [pc] - Put a breakpoint at a particular/specified [pc].");
+            System.out.println("r [pc] - Remove a breakpoint at a particular/specified [pc].");
             System.out.println("c - Continue execution until it hits the next breakpoint pc or exits.");
 			innerloop: while (true) {
 	            String input = getScannerString(consoleReader);
@@ -72,6 +73,16 @@ public class Main {
 					System.out.println(cpu.getProgramCounter());
 				} else if (input.toLowerCase().equals("insn")) {
 					System.out.println(cpu.nextStep());
+				} else if (input.toLowerCase().startsWith("b")) {
+					String breakpointAddress = input.substring(2).trim();
+				    cpu.setBreakpoint(breakpointAddress);
+				    // Optionally print the breakpoints here for user feedback
+				    System.out.println("Breakpoint set at " + breakpointAddress);
+				} else if (input.toLowerCase().startsWith("r")) {
+				    String breakpointAddress = input.substring(2).trim();
+				    cpu.removeBreakpoint(breakpointAddress);
+				    // Optionally print the removal of breakpoints for user feedback
+				    System.out.println("Breakpoint removed at " + breakpointAddress);
 				} else if (input.toLowerCase().equals("c")) {
 					runThrough(cpu);
 					break outerloop;
@@ -162,9 +173,6 @@ public class Main {
     public static void main(String[] args) 
     {
     	Scanner consoleReader = new Scanner(System.in);
-    	boolean breakpoint = false;
-        String[] breakpoints = new String[5];
-        int breakpointCount = 0;
 
 		System.out.println("Welcome to a RISC-V simulator \n" + "Made by Griffin, Lac, Viet, Karan, and Ali");
 		while (true) {

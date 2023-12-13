@@ -10,6 +10,7 @@ public class CPU {
     private int program[];
     private List<String> assemblyProgram = new ArrayList<>();
     private String assemblyCode;
+    private String[] breakpoints = new String[5];
 
     private int instr;
     private int opcode;
@@ -32,8 +33,46 @@ public class CPU {
         jump = false;
         reg[2] = memory.length - 5;
     }
+    
+    public boolean breakpoint() {
+        for (String bp : breakpoints) {
+            if (bp != null && bp.equals(String.format("0x%08X", programCounter))) {
+                return true; // Break if the current program counter matches a breakpoint
+            }
+        }
+        return false;
+    }
+
+    // Method to set a breakpoint at a specific program counter
+    public void setBreakpoint(String pc) {
+        for (int i = 0; i < breakpoints.length; i++) {
+            if (breakpoints[i] == null) {
+                breakpoints[i] = pc;
+                System.out.println("Breakpoint set at " + pc);
+                return;
+            }
+        }
+        System.out.println("Maximum number of breakpoints reached (5). Remove a breakpoint to add a new one.");
+    }
+
+    // Method to remove a breakpoint at a specific program counter
+    public void removeBreakpoint(String pc) {
+        for (int i = 0; i < breakpoints.length; i++) {
+            if (breakpoints[i] != null && breakpoints[i].equals(pc)) {
+                breakpoints[i] = null;
+                System.out.println("Breakpoint removed at " + pc);
+                return;
+            }
+        }
+        System.out.println("Breakpoint not found at " + pc);
+    }
 
     public boolean step() {
+    	if (breakpoint()) {
+            System.out.println("Breakpoint reached at " + String.format("0x%08X", programCounter));
+            return false;
+        }
+    	
     	assemblyCode = "";
         oldProgramCounter = programCounter;
         instr = program[(programCounter / 4)];
