@@ -146,7 +146,7 @@ public class Main
 		while (true) {
 			System.out.print("1: Run a program\n" + "2: Debugging\n" + "3: Exit \n");
 //			System.out.println("Select an option:");
-//            System.out.println("1 - Run a program");
+//            System.out.println("r - Run a program");
 //            System.out.println("2 - Run the next instruction and then stop and wait for the next command.");
 //            System.out.println("3 - Return the contents of the register from the register file (x0 must always stay 0).");
 //            System.out.println("4 0x12345678 - Return the contents from the address 0x12345678 in the data memory.");

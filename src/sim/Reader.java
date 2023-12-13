@@ -5,73 +5,61 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Reader {
-	private ArrayList<String> instructions = new ArrayList<>();
+	private List<String> instructions = new ArrayList<>();
 
 	public void readFile(String fileName) {
-		FileReader reader = null;
-		BufferedReader buffer = null;
-		String instruction = "";
+	    FileReader reader = null;
+	    BufferedReader buffer = null;
 
-		try {
-			reader = new FileReader(fileName);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.exit(1);
-		}
+	    try {
+	        reader = new FileReader(fileName);
+	    } catch (FileNotFoundException e) {
+	        e.printStackTrace();
+	        System.exit(1);
+	    }
 
-		buffer = new BufferedReader(reader);
+	    buffer = new BufferedReader(reader);
 
-		System.out.println("Reading: " + fileName);
-		try {
-			buffer.readLine(); // skip spacer byte
-			while (true)
-			{
-				String readByte = buffer.readLine();
-				instruction = readByte;
+	    System.out.println("Reading: " + fileName);
 
-				if(instruction == null) break;
-				instructions.add(readByte);
-				// Every file has x/4 lines, since each line is one byte and each file needs to have
-				// 4 bytes per instruction
-				for (int i = 0; i < 3; i++)
-				{
-					readByte = buffer.readLine();
+	    // Read lines into a list
+	    List<String> lines = new ArrayList<>();
+	    String line;
+	    try {
+	        while ((line = buffer.readLine()) != null) {
+	            lines.add(line);
+	        }
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
 
-					if (readByte == null) {
-						instruction = null;
-						break;
-					}
-					instruction += readByte;
-					instructions.add(readByte);
-				}
+	    // Process the lines in reverse order
+	    for (int i = lines.size() - 1; i >= 0; i--) {
+	        String instruction = lines.get(i);
+	        for (int j = 0; j < 3; j++) {
+	            if (i - 1 >= 0) {
+	                instruction = instruction + lines.get(--i);
+	            } else {
+	                break;
+	            }
+	        }
 
-				// perhaps some instruction execution block should go here
-				// since by now a complete instruction has formed.... we may
-				// not need the arraylist to hold instructions
+	        // Add the reversed instruction to the list
+	        instructions.add(instruction);
 
-				// instructions.add(instruction);
-				
-
-				if (instruction != null && instruction.length() > 25) {
-					System.out.println(instruction);
-					String opcode = instruction.substring(25);
-					System.out.println("Opcode: " + opcode);
-				}
-
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NumberFormatException e) {
-			System.out.println("Instruction parse failure");
-			e.printStackTrace();
-		}
+	        if (instruction.length() > 25) {
+	            System.out.println(instruction);
+	            String opcode = instruction.substring(25);
+	            System.out.println("Opcode: " + opcode);
+	        }
+	    }
 	}
 
-	public ArrayList<String> getInstructions() {
+
+	public List<String> getInstructions() {
         return instructions;
     }
 
@@ -80,36 +68,13 @@ public class Reader {
         StringBuilder instructionBuilder = new StringBuilder();
 
         for (int i = 0; i < instructions.size(); i += 4) {
-            for (int j = 0; j < 4; j++) {
-                if (i + j < instructions.size()) {
-                    instructionBuilder.append(instructions.get(i + j));
-                }
+        	instructionBuilder.append(instructions.get(i));
+            if ((i + 1) % 4 == 0) {
+            	instructionStrings.add(instructionBuilder.toString());
+                instructionBuilder.setLength(0); // Clear the StringBuilder for the next iteration
             }
-
-            instructionStrings.add(instructionBuilder.toString());
-            instructionBuilder.setLength(0); // Clear the StringBuilder for the next iteration
         }
 
         return instructionStrings;
     }
-
-	// public void readAddiNoHazard() {
-	// 	System.out.println("Reading: addi_nohazard.dat");
-	// 	readFile("addi_nohazard.dat");
-	// }
-
-	// public void readAddiHazards() {
-	// 	System.out.println("Reading: addi_hazards.dat");
-	// 	readFile("addi_hazards.dat");
-	// }
-
-	// public void readIType() {
-	// 	System.out.println("Reading: i_type.dat");
-	// 	readFile("i_type.dat");
-	// }
-
-	// public void readRType() {
-	// 	System.out.println("Reading: r_type.dat");
-	// 	readFile("r_type.dat");
-	// }
 }
