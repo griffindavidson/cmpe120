@@ -18,16 +18,23 @@ public class Main {
 			CPU cpu = new CPU();
 			cpu.loadProgram(programLines);
 
+			// Start timer
+			long startTime = System.currentTimeMillis();
+
 			boolean nextStep = true;
 			while (nextStep) {
 				nextStep = cpu.step();
 			}
+
+			// Stop timer
+			long endTime = System.currentTimeMillis();
 
 			System.out.println("The content of the registers was:\n");
 			int[] reg = cpu.getReg();
 			for (int i = 0; i < reg.length; i++)
 				System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
 			System.out.println("Final counter: " + cpu.getProgramCounter());
+			System.out.println("Execution time: " + (endTime - startTime) + " milliseconds");
 			System.out.println();
 			printToFile(cpu);
 
@@ -42,6 +49,10 @@ public class Main {
 		List<String> programLines = getProgramFile(consoleReader);
 		CPU cpu = new CPU();
 		cpu.loadProgram(programLines);
+
+		// Start timer
+		long startTime = System.currentTimeMillis();
+
 		while (true) {
 			System.out.println("\nContinuing from PC: " + cpu.getProgramCounter());
 			if(!cpu.step()) {
@@ -51,6 +62,10 @@ public class Main {
 				System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
 				System.out.println("");
 				printToFile(cpu);
+
+				// Stop timer
+				long endTime = System.currentTimeMillis();
+				System.out.println("Execution time: " + (endTime - startTime) + " milliseconds");
 				break;
 			}
 			
