@@ -300,6 +300,10 @@ public class CPU {
         return reg;
     }
 
+    public String getAssembly() {
+        return assemblyCode;
+    }
+
     public int getExitCode() {
         return exit;
     }
@@ -311,4 +315,6 @@ public class CPU {
     public int getOldProgramCounter() {
         return oldProgramCounter;
     }
+
+    
 }
