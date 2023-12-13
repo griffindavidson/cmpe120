@@ -27,7 +27,9 @@ public class Main {
 			int[] reg = cpu.getReg();
 			for (int i = 0; i < reg.length; i++)
 				System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
+			System.out.println("Final counter: " + cpu.getProgramCounter());
 			System.out.println();
+			printToFile(cpu);
 
 			System.out.println("Do you want to run another program? (Y/n):");
 			if (getScannerString(consoleReader).toLowerCase().equals("n"))
@@ -42,6 +44,7 @@ public class Main {
 		cpu.loadProgram(programLines);
 		outerloop: while (true) {
 			if(!cpu.step()) {
+				printToFile(cpu);
 				break;
 			}
 			
@@ -68,7 +71,7 @@ public class Main {
 				} else if (input.toLowerCase().equals("pc")) {
 					System.out.println(cpu.getProgramCounter());
 				} else if (input.toLowerCase().equals("insn")) {
-					System.out.println(cpu.getAssembly());
+					System.out.println(cpu.nextStep());
 				} else if (input.toLowerCase().equals("c")) {
 					runThrough(cpu);
 					break outerloop;
@@ -90,6 +93,8 @@ public class Main {
 		for (int i = 0; i < reg.length; i++)
 			System.out.println("x" + String.format("%02d", i) + ": " + String.format("0x%08X", reg[i]));
 		System.out.println();
+		System.out.println("Final counter: " + cpu.getProgramCounter());
+		printToFile(cpu);
 	}
 
 
@@ -137,17 +142,21 @@ public class Main {
 		}
 	}
 
-	private static void printRegistersToFile(CPU cpu, String nameOfOutputFile) {
-		byte data[] = new byte[cpu.getReg().length * 4];
-		for (int i = 0; i < 32; i++)
-			for (int x = 0; x < 4; x++)
-				data[i*4 + x] = (byte) ((cpu.getReg()[i] >> 8 * x) & 0xff);
-		Path file = Paths.get(nameOfOutputFile + ".res");
-		try {
-			Files.write(file, data);
-		} catch (IOException e) {
-			System.out.println("File was not saved");
-		}
+	private static void printToFile(CPU cpu) {
+		List<String> assemblyProgram = cpu.getAssemblyProgram();
+	    int programCounter = cpu.getProgramCounter();
+
+	    Path file = Paths.get("assembly.asm");
+
+	    try {
+	        // Write the assembly program
+	        Files.write(file, assemblyProgram);
+
+	        // Append the program counter to the file
+	        Files.write(file, ("\nFinal Program Counter: " + programCounter).getBytes(), java.nio.file.StandardOpenOption.APPEND);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 	
     public static void main(String[] args) 

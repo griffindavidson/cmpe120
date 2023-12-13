@@ -1,12 +1,14 @@
 package sim;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class CPU {
     private int programCounter, oldProgramCounter;
     private int reg[] = new int[32];
-    private byte memory[] = new byte[0x0ffffff3];
+    private byte memory[] = new byte[0x10030000];
     private int program[];
+    private List<String> assemblyProgram = new ArrayList<>();
     private String assemblyCode;
 
     private int instr;
@@ -32,9 +34,9 @@ public class CPU {
     }
 
     public boolean step() {
-        assemblyCode = "";
+    	assemblyCode = "";
         oldProgramCounter = programCounter;
-        instr = program[programCounter / 4];
+        instr = program[(programCounter / 4)];
         opcode = instr & 0x7f;
         rd  = (instr >> 7) & 0x1f;
         f3 = (instr >> 12) & 0x7;
@@ -251,6 +253,7 @@ public class CPU {
                 }
                 break;
         }
+        assemblyProgram.add(assemblyCode);
         if (!jump) {
             programCounter += 4;
         } else jump = false;
@@ -258,15 +261,181 @@ public class CPU {
             return false;
         } else return true;
     }
+    
+    public String nextStep() {
+        assemblyCode = "";
+        oldProgramCounter = programCounter;
+        instr = program[(programCounter / 4)];
+        opcode = instr & 0x7f;
+        rd  = (instr >> 7) & 0x1f;
+        f3 = (instr >> 12) & 0x7;
+        rs1 = (instr >> 15) & 0x1f;
+        rs2 = (instr >> 20) & 0x1f;
+        f7 = (instr >> 25) & 0x7f;
+        immi = instr >> 20;
+        imms = ((instr >> 7) & 0x1f) + ((instr >> 25) << 5);
+        immb = (((instr >> 8) & 0x0f) << 1) + (((instr >> 25) & 0x3f) << 5) + (((instr >> 7) & 0x01) << 11) + ((instr >> 31) << 12);
+        immu = instr & (0xfffff << 12);
+        immj = (((instr >> 21) & 0x3ff) << 1) + (((instr >> 20) & 0x001) << 11) + (instr & (0x0ff << 12)) + ((instr >> 31) << 20);
+        switch (opcode) {
+            case 0x37: // 0110111 - U-TYPE LOAD UPPER IMMEDIATE (LUI)
+                assemblyCode = "lui x" + rd + ", " + immu;
+                break;
+            case 0x17: // 0010111 - U-TYPE ADD UPPER IMMEDIATE TO PC (AUIPC)
+                assemblyCode = "auipc x" + rd + ", " + immb;
+                break;
+            case 0x6f: // 1101111 - JUMP AND LINK (JAL)
+                assemblyCode = "jal x" + rd + ", " + immj;
+                break;
+            case 0x67: // 1100111 - JUMP AND LINK REGISTER (JALR)
+                assemblyCode = "jalr x" + rd + ", " + rs1 + ", " + immi;
+                break;
+            case 0x63: // 1100011 B-TYPE
+                switch (f3) {
+                    case 0x0: // 000 BRANCH IF EQUAL (BEQ)
+                        assemblyCode = "beq x" + rs1 + ", " + rs2 + ", " + immb;
+                        break;
+                    case 0x1: // 001 BRANCH IF NOT EQUAL (BNE)
+                        assemblyCode = "bne x" + rs1 + ", " + rs2 + ", " + immb;
+                        break;
+                    case 0x4: // 100 BRANCH LESS THAN (BLT)
+                        assemblyCode = "blt x" + rs1 + ", " + rs2 + ", " + immb;
+                        break;
+                    case 0x5: // 101 BRANCH GREATER THAN (BGE)
+                        assemblyCode = "bge x" + rs1 + ", " + rs2 + ", " + immb;
+                        break;
+                    case 0x6: // 110 BRANCH IF LESS THAN UNSIGNED (BLTU)
+                        assemblyCode = "bltu x" + rs1 + ", " + rs2 + ", " + immb;
+                        break;
+                    case 0x7: // 111 BRANCH IF GREATER THAN OR EQUAL UNSIGNED (BGEU)
+                        assemblyCode = "bgeu x" + rs1 + ", " + rs2 + ", " + immb;
+                        break;
+                    default:
+                        System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
+                        break;
+                }
+                break;
+            case 0x03: // 0000011 I-TYPE LOAD
+                switch (f3) {
+                    case 0x0: // 000 LOAD BYTE (LB)
+                        assemblyCode = "lb x" + rd + ", " + immi + "(x" + rs1 + ")";
+                        break;
+                    case 0x1: // 001 LOAD HALF (LH)
+                        assemblyCode = "lh x" + rd + ", " + immi + "(x" + rs1 + ")";
+                        break;
+                    case 0x2: // 010 LOAD WORD (LW)
+                        assemblyCode = "lw x" + rd + ", " + immi + "(x" + rs1 + ")";
+                        break;
+                    case 0x4: // 100 LOAD BYTE UNSIGNED (LBU)
+                        assemblyCode = "lbu x" + rd + ", " + immi + "(x" + rs1 + ")";
+                        break;
+                    case 0x5: // 101 LOAD HALF UNSIGNED (LHU)
+                        assemblyCode = "lhu x" + rd + ", " + immi + "(x" + rs1 + ")";
+                        break;
+                    default:
+                        System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
+                        break;
+                }
+                break;
+            case 0x23: // 0100011 - I-TYPE STORE
+                switch (f3) {
+                    case 0x0: // 000 STORE BYTE (SB)
+                        assemblyCode = "sb x" + rs2 + ", " + immi + "(x" + rs1 + ")";
+                        break;
+                    case 0x1: // 001 STORE HALF (SH)
+                        assemblyCode = "sh x" + rs2 + ", " + immi + "(x" + rs1 + ")";
+                        break;
+                    case 0x2: // 010 STORE WORD (SW)
+                        assemblyCode = "sw x" + rs2 + ", " + immi + "(x" + rs1 + ")";
+                        break;
+                    default:
+                        System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
+                        break;
+                }
+                break;
+            case 0x13: // 0010011 - I-TYPE
+                switch (f3) {
+                    case 0x0: // 000 ADD IMMEDIATE (ADDI)
+                        assemblyCode = "addi x" + rd + ", x" + rs1 + ", " + immi;
+                        break;
+                    case 0x1: // 001 SHIFT LEFT LOGICAL IMMEDIATE (SLLI)
+                        assemblyCode = "slli x" + rd + ", x" + rs1 + ", " + (immi & 0x1f);
+                        break;
+                    case 0x2: // 010 SET ON LESS THAN IMMEDIATE (SLTI)
+                        assemblyCode = "slti x" + rd + ", x" + rs1 + ", " + immi;
+                        break;
+                    case 0x3: // 011 SET ON LESS THAN IMMEDIATE UNSIGNED (SLTIU)
+                        assemblyCode = "sltiu x" + rd + ", x" + rs1 + ", " + immi;
+                        break;
+                    case 0x4: // 100 BITWISE EXCLUSIVE OR IMMEDIATE (XORI)
+                        assemblyCode = "xori x" + rd + ", x" + rs1 + ", " + immi;
+                        break;
+                    case 0x5: // 101 
+                        if ((immi >>> 7) == 0x00) { // SHIFT RIGHT LOGICAL IMMEDIATE (SRLI)
+                            assemblyCode = "srli x" + rd + ", x" + rs1 + ", " + (immi & 0x1f);
+                        } else { // SHIFT RIGHT ARITHMETIC IMMEDIATE (SRAI)
+                            assemblyCode = "srai x" + rd + ", x" + rs1 + ", " + (immi & 0x1f);
+                        }
+                        break;
+                    case 0x6: // 110 BITWISE OR IMMEDIATE (ORI)
+                        assemblyCode = "ori x" + rd + ", x" + rs1 + ", " + immi;
+                        break;
+                    case 0x7: // 111 BITWISE AND IMMEDIATE (ANDI)
+                        assemblyCode = "andi x" + rd + ", x" + rs1 + ", " + immi;
+                        break;
+                    default:
+                        System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
+                        break;
+                }
+                break;
+            case 0x33: // 0110011 - R-TYPE
+                switch (f3) {
+                    case 0x0: // 000
+                        if (f7 == 0x00) { // ADDITION (ADD)
+                            assemblyCode = "add x" + rd + ", x" + rs1 + ", x" + rs2;
+                        } else {// SUBTRACTION (SUB)
+                            assemblyCode = "sub x" + rd + ", x" + rs1 + ", x" + rs2;
+                        }
+                        break;
+                    case 0x1: // 001 SHIFT LEFT LOGICAL (SLL)
+                        assemblyCode = "sll x" + rd + ", x" + rs1 + ", x" + rs2;
+                        break;
+                    case 0x2: // 010 SET IF LESS THAN (SLT)
+                        assemblyCode = "slt x" + rd + ", x" + rs1 + ", x" + rs2;
+                        break;
+                    case 0x3: // 011 SET IF LESS THAN UNSIGNED (SLTU)
+                        assemblyCode = "sltu x" + rd + ", x" + rs1 + ", x" + rs2;
+                        break;
+                    case 0x4: // 100 BTIWISE EXCLUSIVE OR (XOR)
+                        assemblyCode = "xor x" + rd + ", x" + rs1 + ", x" + rs2;
+                        break;
+                    case 0x5: // 101
+                        if (f7 == 0x00) { // SHIFT RIGHT LOGICAL (SRL)
+                            assemblyCode = "srl x" + rd + ", x" + rs1 + ", x" + rs2;
+                        } else { // SHIFT RIGHT ARITHMETIC (SRA)
+                            assemblyCode = "sra x" + rd + ", x" + rs1 + ", x" + rs2;
+                        }
+                        break;
+                    case 0x6: // 110 BITWITSE OR (OR)
+                        assemblyCode = "or x" + rd + ", x" + rs1 + ", x" + rs2;
+                        break;
+                    case 0x7: // 111 BITWISE AND (AND)
+                        assemblyCode = "amd x" + rd + ", x" + rs1 + ", x" + rs2;
+                        break;
+                    default:
+                        System.out.println("funt3: " + String.format("0x%01X", f3) + "doesn't work");
+                        break;
+                }
+                break;
+        }
+        
+        return assemblyCode;
+    }
 
     private void jumpImm(int immType) {
 		programCounter += immType;
 		jump = true;
 	}
-
-    private void printOpCode() {
-        System.out.println("Opcode: " + String.format("0x%01X", opcode));
-    }
 
     public void loadProgram(List<String> programLines) {
         this.program = new int[programLines.size()];
@@ -302,6 +471,10 @@ public class CPU {
 
     public String getAssembly() {
         return assemblyCode;
+    }
+    
+    public List<String> getAssemblyProgram() {
+    	return assemblyProgram;
     }
 
     public int getExitCode() {
