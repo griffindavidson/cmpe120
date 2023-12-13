@@ -53,18 +53,8 @@ public class Main
 
 	private static List<String> getTheProgramFromAFile(Scanner consoleReader) {
 	    List<String> programFile = getProgramFile(consoleReader);
-	    List<String> programLines = new ArrayList<>();
 
-	    for (int i = 0; i < programFile.size() - 3; i += 4) {
-	        int instructionValue = 0;
-	        for (int x = 0; x < 4; x++) {
-	            BigInteger byteValue = new BigInteger(programFile.get(i + x), 2);
-	            instructionValue += byteValue.intValue() << (8 * (3 - x));
-	        }
-	        programLines.add(String.format("%32s", Integer.toBinaryString(instructionValue)).replace(' ', '0'));
-	    }
-
-	    return programLines;
+	    return programFile;
 	}
 
 

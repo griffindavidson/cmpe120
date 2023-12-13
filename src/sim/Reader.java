@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 public class Reader {
 	private List<String> instructions = new ArrayList<>();
@@ -56,6 +57,8 @@ public class Reader {
 	            System.out.println("Opcode: " + opcode);
 	        }
 	    }
+	    
+	    Collections.reverse(instructions);
 	}
 
 
